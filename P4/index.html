@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Supermercado Online</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Supermercado</h1>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="carrito.html">Carrito</a>
+    <a href="contacto.html">Contacto</a>
+    <a href="ubicacion.html">Ubicación</a>
+  </nav>
+</header>
+
+<main>
+  <section class="productos">
+
+    <article class="producto">
+      <img src="leche.jpg" alt="">
+      <h3>Leche</h3>
+      <p class="precio">1.20€</p>
+      <button onclick="anadirProducto(1, 1.20)">Añadir</button>
+    </article>
+
+    <article class="producto">
+      <img src="pan.jpg" alt="">
+      <h3>Pan</h3>
+      <p class="precio">0.90€</p>
+      <button onclick="anadirProducto(2, 0.90)">Añadir</button>
+    </article>
+
+    <article class="producto">
+      <img src="manzanas.jpg" alt="">
+      <h3>Manzanas</h3>
+      <p class="precio">2.50€</p>
+      <button onclick="anadirProducto(3, 2.50)">Añadir</button>
+    </article>
+
+    <article class="producto">
+      <img src="huevos.png" alt="">
+      <h3>Huevos</h3>
+      <p class="precio">3.00€</p>
+      <button onclick="anadirProducto(4, 3.00)">Añadir</button>
+    </article>
+
+  </section>
+</main>
+
+<footer>
+  <p>© 2026 Supermercado</p>
+</footer>
+
+<script>
+  const API = 'http://localhost:8080';
+
+  async function inicializarCarrito() {
+    if (!localStorage.getItem('idCarrito')) {
+      const resp = await fetch(`${API}/carritos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idUsuario: 1, emailUsuario: 'usuario@email.com' })
+      });
+      const carrito = await resp.json();
+      localStorage.setItem('idCarrito', carrito.idCarrito);
+    }
+  }
+
+  async function anadirProducto(idArticulo, precio) {
+    const idCarrito = localStorage.getItem('idCarrito');
+    await fetch(`${API}/carritos/${idCarrito}/lineas`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idArticulo: idArticulo, precioUnitario: precio, unidades: 1 })
+    });
+    alert('Producto añadido al carrito');
+  }
+
+  inicializarCarrito();
+</script>
+
+</body>
+</html>

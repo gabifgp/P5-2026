@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Carrito</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Carrito</h1>
+  <nav>
+    <a href="index.html">Inicio</a>
+    <a href="carrito.html">Carrito</a>
+    <a href="contacto.html">Contacto</a>
+    <a href="ubicacion.html">Ubicación</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="carrito-box">
+    <h2>Datos del carrito</h2>
+    <div id="datos-carrito"></div>
+  </section>
+
+  <section class="carrito-box">
+    <h2>Líneas de carrito</h2>
+    <div id="lineas-carrito"></div>
+  </section>
+
+</main>
+
+<footer>
+  <p>© 2026 Supermercado</p>
+</footer>
+
+<script>
+  const API = 'http://localhost:8080';
+  const NOMBRES = { 1: 'Leche', 2: 'Pan', 3: 'Manzanas', 4: 'Huevos' };
+
+  async function cargarCarrito() {
+    const idCarrito = localStorage.getItem('idCarrito');
+    const divDatos = document.getElementById('datos-carrito');
+    const divLineas = document.getElementById('lineas-carrito');
+
+    if (!idCarrito) {
+      divDatos.innerHTML = '<p>No hay carrito activo. <a href="index.html">Ve al inicio</a> para añadir productos.</p>';
+      divLineas.innerHTML = '';
+      return;
+    }
+
+    const resp = await fetch(`${API}/carritos/${idCarrito}`);
+    const carrito = await resp.json();
+
+    divDatos.innerHTML = `
+      <p><strong>IdCarrito:</strong> ${carrito.idCarrito}</p>
+      <p><strong>IdUsuario:</strong> ${carrito.idUsuario}</p>
+      <p><strong>Correo:</strong> ${carrito.emailUsuario}</p>
+      <p><strong>Total:</strong> ${carrito.totalPrecio}€</p>
+    `;
+
+    divLineas.innerHTML = '';
+    if (carrito.lineas.length === 0) {
+      divLineas.innerHTML = '<p>El carrito está vacío.</p>';
+      return;
+    }
+
+    carrito.lineas.forEach(linea => {
+      const nombre = NOMBRES[linea.idArticulo] || `Artículo ${linea.idArticulo}`;
+      const art = document.createElement('article');
+      art.className = 'linea';
+      art.innerHTML = `
+        <span>${nombre} (${linea.unidades} x ${linea.precioUnitario}€)</span>
+        <span>${linea.costeLinea}€</span>
+        <button onclick="eliminarLinea(${linea.idArticulo})">Eliminar</button>
+      `;
+      divLineas.appendChild(art);
+    });
+  }
+
+  async function eliminarLinea(idArticulo) {
+    const idCarrito = localStorage.getItem('idCarrito');
+    await fetch(`${API}/carritos/${idCarrito}/lineas/${idArticulo}`, { method: 'DELETE' });
+    cargarCarrito();
+  }
+
+  cargarCarrito();
+</script>
+
+</body>
+</html>
