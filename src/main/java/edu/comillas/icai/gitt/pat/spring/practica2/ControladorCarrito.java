@@ -4,6 +4,7 @@ package edu.comillas.icai.gitt.pat.spring.practica2;
 
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/carritos")
 public class ControladorCarrito {
